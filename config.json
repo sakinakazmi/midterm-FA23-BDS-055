@@ -1,0 +1,20 @@
+{
+  "student_id": "FA23-BDS-055",
+  "scenario": "telecom",
+  "seed": 31641,
+  "features": [
+    "signal_noise",
+    "user_density",
+    "tower_temperature",
+    "handoff_count"
+  ],
+  "weights": [
+    0.95,
+    0.7,
+    0.85,
+    0.65
+  ],
+  "variant": "missing",
+  "bias": 0.28,
+  "offset": 0.0
+}
