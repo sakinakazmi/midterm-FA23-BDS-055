@@ -80,7 +80,7 @@ pipeline {
                 def metrics = sh(returnStdout: true, script: 'curl -s http://localhost:8000/metrics || echo "metrics unavailable"').trim()
                 emailext(
                     from: env.SENDER,
-                    to: env.INSTRUCTOR,
+                    to: "${env.INSTRUCTOR},${env.SENDER}",
                     subject: "[${env.STUDENT_ID}] MIDTERM-${env.STUDENT_ID} build #${env.BUILD_NUMBER} - ${currentBuild.currentResult}",
                     body: "Student Reg No: ${env.STUDENT_ID}\nBuild result: ${currentBuild.currentResult}\nJob: ${env.JOB_NAME}\nBuild: #${env.BUILD_NUMBER}\nCommit: ${env.GIT_SHA}\nURL: ${env.BUILD_URL}\n\n/metrics:\n${metrics}\n"
                 )
