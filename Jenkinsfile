@@ -33,7 +33,12 @@ pipeline {
         stage('Build image and train') {
             steps {
                 // The Dockerfile installs dependencies and runs train.py on the latest dataset
-                sh 'docker build --build-arg GIT_COMMIT=$GIT_SHA -t $IMAGE:latest .'
+                // Start from scratch: remove the old container and image, then rebuild without cache
+                sh '''
+                    docker rm -f $CONTAINER || true
+                    docker rmi -f $IMAGE:latest || true
+                    docker build --no-cache --build-arg GIT_COMMIT=$GIT_SHA -t $IMAGE:latest .
+                '''
             }
         }
 
