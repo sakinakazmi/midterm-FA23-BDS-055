@@ -30,24 +30,16 @@ pipeline {
             }
         }
 
-        stage('Train and test') {
+        stage('Build image and train') {
             steps {
-                script {
-                    docker.image('python:3.11-slim').inside('-e HOME=/tmp -e GIT_COMMIT=' + env.GIT_SHA) {
-                        sh '''
-                            pip install --no-cache-dir --user -r requirements.txt
-                            export PATH=$PATH:/tmp/.local/bin
-                            python train.py
-                            python -m pytest -q
-                        '''
-                    }
-                }
+                // The Dockerfile installs dependencies and runs train.py on the latest dataset
+                sh 'docker build --build-arg GIT_COMMIT=$GIT_SHA -t $IMAGE:latest .'
             }
         }
 
-        stage('Build Docker image') {
+        stage('Test') {
             steps {
-                sh 'docker build --build-arg GIT_COMMIT=$GIT_SHA -t $IMAGE:latest .'
+                sh 'docker run --rm $IMAGE:latest python -m pytest -q'
             }
         }
 
@@ -84,7 +76,6 @@ pipeline {
                 emailext(
                     from: env.SENDER,
                     to: env.INSTRUCTOR,
-                    cc: env.SENDER,
                     subject: "[${env.STUDENT_ID}] MIDTERM-${env.STUDENT_ID} build #${env.BUILD_NUMBER} - ${currentBuild.currentResult}",
                     body: "Student Reg No: ${env.STUDENT_ID}\nBuild result: ${currentBuild.currentResult}\nJob: ${env.JOB_NAME}\nBuild: #${env.BUILD_NUMBER}\nCommit: ${env.GIT_SHA}\nURL: ${env.BUILD_URL}\n\n/metrics:\n${metrics}\n"
                 )
